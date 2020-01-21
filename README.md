@@ -1,7 +1,7 @@
 # megarender
 An addon for Blender 2.80
 
-Originally from [https://github.com/kinoraw/kinoraw_repo](URL)
+Originally from [https://github.com/kinoraw/kinoraw_repo](https://github.com/kinoraw/kinoraw_repo/)
 
 The operator "generate" divides the timeline in n pieces, being n the number of available cores, and generates a bash script to launch as many blenders as cores are indicated, executing blender processes in background.
 
