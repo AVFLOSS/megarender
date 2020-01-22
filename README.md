@@ -7,7 +7,9 @@ The operator "generate" divides the timeline in n pieces, being n the number of 
 
 It works with video and image sequences.
 
-To join the video clips you have to run the script concatenate_videos.sh in a folder that only has the pieces of video to join.
-ffmpeg is needed.
+If the output is set to video (at the moment only mp4 and mkv), once the video parts are finished it uses ffmpeg to concatenate them into the final output video file.
+
+
+FFMPEG required.
 
 At the moment only tested on Linux.  It uses Zenity to show info

@@ -19,11 +19,11 @@
 bl_info = {
     "name": "Mega Render",
     "author": "Carlos Padial, Ferhoyo",
-    "version": (0, 20),
+    "version": (0, 21),
     "blender": (2, 80, 0),
     "category": "Sequencer",
     "location": "Sequencer",
-    "description": "mega render operator with log file",
+    "description": "mega render operator for 2.8 with log file",
     "warning": "",
     "wiki_url": "http://kinoraw.net",
     "tracker_url": "http://kinoraw.net",
@@ -95,6 +95,14 @@ class SEQUENCER_PT_GenerateMegaRenderOperator(bpy.types.Operator):
         part = int(duration / number_of_threads)
 
         tramos = generate_parts(s_frame, e_frame, number_of_threads)
+        #Get absolute render path:
+        filepath = bpy.context.scene.render.filepath
+        absolutepath = bpy.path.abspath(filepath)
+        path = os.path.normpath(absolutepath).rsplit('/', 1)[0]
+        #Get render and file format
+        render_format = bpy.data.scenes["Scene"].render.ffmpeg.format
+        file_format = bpy.data.scenes["Scene"].render.image_settings.file_format
+        
 
         #generate_scripts(tra, blenderpath, blendfile, sce, scriptfilename)
 
@@ -120,6 +128,24 @@ class SEQUENCER_PT_GenerateMegaRenderOperator(bpy.types.Operator):
             if i < len(tramos)-1:
                 print(i, len(tramos)-1)
                 text_file.write(" & \n")
+        if file_format == "FFMPEG":
+            if  render_format== "MPEG4":
+                render_extension = "mp4"
+            if render_format =="MKV":
+                render_extension = "mkv"
+                   
+            text_file.write("\nwait \n")
+            text_file.write("cd " + path + "/\n")
+            #Creating a file mylist.txt with all the files to be concatenated
+            text_file.write("for f in *."+render_extension+";do echo \"file \'$f\'\" >> mylist.txt; done \n")
+            text_file.write("sleep .1\n")
+            #FFMPEG Concat demuxer
+            text_file.write("ffmpeg -f concat -safe 0 -i "+path+"/mylist.txt -c copy output."+render_extension+" \n") 
+            text_file.write("wait \n")
+            text_file.write("echo \"Todo hecho\"\n")
+            #Removing temp files 
+            text_file.write("for f in $(grep -o \"'.*'\" "+path+"/mylist.txt | tr -d \"'\"); do rm "+path+"/\"$f\" ; done \n")
+            text_file.write("rm "+path+"/mylist.txt \n")
         text_file.close()
         os.chmod(scriptfilename, 0o744)
         
